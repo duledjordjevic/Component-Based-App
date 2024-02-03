@@ -1,12 +1,10 @@
-import base64
 from github import Auth
-from pprint import pprint
 from github import Github, NamedUser
 from api.src.plugin.models.graph import *
 from api.src.plugin.services.service_base import GraphLoadBase
 
 
-MAX_NODES = 200
+MAX_NODES = 20
 MAX_OUTER_FOR = 100
 MAX_INNER_FOR = 2
 auth = Auth.Token('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')

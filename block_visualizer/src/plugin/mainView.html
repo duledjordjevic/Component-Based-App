@@ -18,8 +18,8 @@
        console.log("ID: "+el.id);
     }
 </script>
-{% load static %}
-<script type="text/javascript" src="{% static 'd3.v3.js' %}"></script>
+
+<script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
 {% endblock %}
 {% block content %}
 <div>
@@ -43,8 +43,8 @@
             "node_{{node.id}}":  {
                 name: "node_{{node.id}}",
                 data : {
-                    {% for key, value in node.data.items %}
-                        "{{ key }}": "{{ value|escapejs }}"{% if not forloop.last %},{% endif %}
+                    {% for key, value in node.data.items() %}
+                        "{{ key }}": {{ value|tojson|safe }} {% if not loop.last %},{% endif %}
                     {% endfor %}
                 }
             },
@@ -179,9 +179,13 @@
         
         Object.entries(d.data).forEach(function([key, value], index) {
             const maxLength = 27; 
-        
-            const displayValue = (key.length + value.length) > maxLength ? value.slice(0, maxLength) + '...' : value;
-        
+            let displayValue = '...';
+            if(value != null){
+                displayValue = (key.length + value.length || 0) > maxLength ? value.slice(0, maxLength) + '...' : value;
+            }else{
+                displayValue = 'None';
+            }
+           
             d3.select("g#" + d.name)
                 .append('text')
                 .attr('x', 0)

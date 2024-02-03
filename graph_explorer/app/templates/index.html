@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-container">
+            <div class="plugins-selector">
+                <h1>Graph visualizer</h1>
+                <div class="plugins">
+                <form id="selectPluginForm" action="{% url 'mainView' %}" method="POST">
+                    {% csrf_token %}
+                    <select id="visualizersPlugin" name="visualizer">
+                        <option value="" disabled selected hidden>Visualizers</option>
+                        {% for visualizer in visualizers %}
+                            <option value="{{ visualizer }}">{{ visualizer }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="sourcePlugins" name="source">
+                        <option value="" disabled selected hidden>Sources</option>
+                        {% for source in data_sources %}
+                            <option name="sourcePlugins" value="{{ source }}">{{ source }}</option>
+                        {% endfor %}
+                    </select> 
+                    <button id="load-button" type="submit" >Load</button>
+                    {% if formInvalid %}
+                        <p>Please select both options</p>
+                    {% endif%}
+                </form>
+                </div>
+            </div>
+            <div class="filter-container">
+                <input placeholder="Search by text" id="input-search">
+                <input placeholder="First value" id="input-filter">
+                <select id="comparisonOperator" name="comparisonOperator">
+                    <option value="<">&lt;</option>
+                    <option value=">">&gt;</option>
+                    <option value="<=">&le;</option>
+                    <option value=">=">&ge;</option>
+                    <option value="==">==</option>
+                    <option value="!=">!=</option>
+                </select>
+                <input placeholder="Second value" id="input-filter">
+                <button id="search-button">Search</button>
+
+            </div>    
+        </div>
+        <div class="views-container"> 
+            <!-- <div class="other-views">
+
+            </div>
+            <div class="main-view">
+
+            </div> -->
+            {{ mainView|safe }}
+        </div>
+    </div>
+
+</body>
+</html>
