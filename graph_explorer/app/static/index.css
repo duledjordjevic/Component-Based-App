@@ -16,7 +16,7 @@ body{
 }
 .filter-container{
     display: flex;
-    border-left: 2px solid black;
+    /* border-left: 2px solid black; */
     padding: 40px;
     width: 100%;
     align-items: center;
@@ -75,14 +75,16 @@ button:hover{
     width: 100%;
     background-color: #F6F8FA;
 }
-.plugins{
+#selectPluginForm{
     display: flex;
     width: 100%;
     gap: 20px;
     justify-content: space-around;
+    padding-bottom: 20px;
 }
-.plugins > select{
-    width: 150px;
+#selectPluginForm select{
+    margin-top: 2px;
+    width: 140px;
 }
 .plugins-selector{
     justify-content: center;
@@ -95,4 +97,32 @@ button:hover{
 
 .plugins > p{
     color:#FF0000;
+    padding: 0px;
+    margin: 0;
+    margin-left: 15px;
 }
+.plugins {
+    height: 70px;
+}
+
+.views-container{
+    display: flex;
+    flex-direction: row;
+    min-height: 700px;
+    width: 100%;
+}
+
+.views-container-left{
+    width: 500px;
+    flex: 3;
+    background-color: #235471;
+}
+
+.views-container-right{
+    background-color: white;
+    width: max-content;
+    flex: 10;
+}
+
+
+
