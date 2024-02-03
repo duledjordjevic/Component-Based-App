@@ -1,12 +1,13 @@
 from django.apps.registry import apps
 from django.shortcuts import render
 from api.src.plugin.models.graph import Graph
+from core.src.use_cases.load import Loader
 
 
-def force_layout(request):
-    plugins = apps.get_app_config('block_visualizer').plugins
-    graph: Graph = plugins[0].load_graph()
-    return render(request,"mainView.html",
-                  {"title":"Force layout graph",
-                   "plugins": plugins,
-                   "graph" : graph})
+class MainView():
+
+    def load_main_view(self,data_source_key:str, visualizer_key:str,loader: Loader):
+        data_source = loader.data_sources[data_source_key]
+        retVal = loader.visualizers[visualizer_key].show_graph(data_source.load_graph())
+        return retVal
+
