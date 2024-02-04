@@ -19,32 +19,13 @@
     }
 </script>
 
-<script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3.v7.js"></script>
 {% endblock %}
 {% block content %}
 <svg width="100%" height="100%">
 
 </svg>
 <script>
-    var svg=d3.select('svg')
-    .call(d3.behavior.zoom().on("zoom", function () {
-
-        console.log("okida se dogadjaj")
-        svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-    }))
-    .append("g"); 
-
-
-   
-    function dragstart(d) {
-        d3.event.sourceEvent.stopPropagation();
-        d3.select(this).classed("fixed", d.fixed = true);
-    }
-    function dragend(d) {
-        d3.event.sourceEvent.stopPropagation();
-        d3.select(this).classed("fixed", d.fixed = false);
-    }
-
 
     var nodes={
         // Prodavnice
@@ -102,22 +83,43 @@
     });
 
 
-    var force = d3.layout.force() 
-        .size([1200, 1200]) 
-        .nodes(d3.values(nodes)) 
-        .links(links) 
-        .on("tick", tick)          
-        .linkDistance(700) 
-        .charge(-2000) 
-        .start(); 
+    var svg=d3.select('svg');
 
-    var drag = force.drag()
-        .on("dragstart", dragstart)
-        .on("dragend", dragend);
+    const zoom = d3.zoom().on("zoom", zoomed);
+
+    svg = svg.call(zoom).append("g");
+
+    function zoomed(event) {
+        const { transform } = event;
+
+        svg.attr("transform", transform.toString());
+    }
+
+   
+    function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(.03).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+    function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+    }
+    function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(.03);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.name; }))
+        .force("charge", d3.forceManyBody().strength(-2000))
+        .force("center", d3.forceCenter(1200 / 2, 1200 / 2))
+        .nodes(Object.values(nodes))
+        .on("tick", tick);
 
 
-    
-    svg.append('defs').append('marker')
+    var arrowhead = svg.append('defs').append('marker')
         .attr('id', 'arrowhead')
         .attr('viewBox', '-0 -5 10 10')
         .attr('refX', 10)
@@ -126,10 +128,10 @@
         .attr('markerWidth', 8)
         .attr('markerHeight', 8)
         .attr('xoverflow', 'visible')
-        .append('svg:path')
-        .attr('fill','#77BFA3')
-        .attr('d', 'M 0,-5 L 10 ,0 L 0,5') 
-    
+        .append('path')
+        .attr('fill', '#77BFA3')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5');
+
     var pairedLink = svg.selectAll('.link')
         .data(links)
         .enter().append('line')
@@ -142,82 +144,87 @@
         .attr('class', 'link');
 
     var node = svg.selectAll('.node')
-        .data(force.nodes()) //add
+        .data(simulation.nodes())
         .enter().append('g')
         .attr('class', 'node')
-        .attr('id', function(d){return d.name;})
-        .on('click',function(){
-           nodeClick(this);
-        });
+        .attr('id', function(d) {return d.name; })
+        .on('click', function() {
+            nodeClick(this);
+        })
+        .call(d3.drag().on("start", dragstarted)
+                        .on("drag", dragged)
+                    .on("end", dragended));
+
+    node.each(function(d) {
+        slozenPrikaz(d);
+    });
+
+    function slozenPrikaz(d) {
+
+        console.log(d)
+
+        var duzina = 150;
+        var dataNumberOfKeys = Object.keys(d.data).length;
+
+        var textSize = 10;
+        var visina = 100;
+        visina += textSize;
+
+        d3.select("g#" + d.name)
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', duzina)
+            .attr('height', visina)
+            .attr('fill', '#77BFA3');
+
+        d3.select("g#" + d.name)
+            .append('text')
+            .attr('x', duzina / 2)
+            .attr('y', 10)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', textSize)
+            .attr('font-family', 'sans-serif')
+            .attr('fill', '#ffffff')
+            .text(d.name);
+
+        d3.select("g#" + d.name)
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', textSize)
+            .attr('x2', duzina)
+            .attr('y2', textSize)
+            .attr('stroke', 'white')
+            .attr('stroke-width', 2);
 
 
-    d3.selectAll('.node').each(function(d){slozenPrikaz(d);});
-
-    function slozenPrikaz(d){
-
-      var duzina=150;
-      var dataNumberOfKeys=Object.keys(d.data).length;
-
-      var textSize=10;
-      var visina=100;
-      visina+=textSize;
-
-      d3.select("g#"+d.name)
-          .append('rect')
-          .attr('x',0)
-          .attr('y',0)
-          .attr('width',duzina)
-          .attr('height',visina)
-          .attr('fill','#77BFA3');
-
-      d3.select("g#"+d.name)
-          .append('text')
-          .attr('x',duzina/2)
-          .attr('y',10)
-          .attr('text-anchor','middle')
-          .attr('font-size',textSize)
-          .attr('font-family','sans-serif')
-          .attr('fill','#ffffff')
-          .text(d.name);
-
-      d3.select("g#"+d.name)
-          .append('line')
-          .attr('x1',0)
-          .attr('y1',textSize)
-          .attr('x2',duzina)
-          .attr('y2',textSize)
-          .attr('stroke','white')
-          .attr('stroke-width',2);
-
-        
         Object.entries(d.data).forEach(function([key, value], index) {
-            const maxLength = 27; 
+            const maxLength = 27;
             let displayValue = '...';
-            if(value != null){
+            if (value != null) {
                 displayValue = (key.length + value.length || 0) > maxLength ? value.slice(0, maxLength) + '...' : value;
-            }else{
+            } else {
                 displayValue = 'None';
             }
-           
+
             d3.select("g#" + d.name)
                 .append('text')
                 .attr('x', 0)
-                .attr('y', 20 + index * textSize)  
+                .attr('y', 20 + index * textSize)
                 .attr('text-anchor', 'start')
                 .attr('font-size', textSize)
                 .attr('font-family', 'sans-serif')
                 .attr('fill', '#ffffff')
                 .text(key + ": " + displayValue);
         });
-        
+
     }
 
-
-    function tick(e) {
+    function tick() {
 
         node.attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";
-        }).call(force.drag);
+        });
 
         unpairedLink.attr('x1', function(d) { return d.source.x; })
             .attr('y1', function(d) { return d.source.y; })
@@ -229,6 +236,7 @@
             .attr('x2', function(d) { return d.target.x; })
             .attr('y2', function(d) { return d.target.y; });
     }
+
 
     
 
