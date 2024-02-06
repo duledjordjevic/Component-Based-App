@@ -55,3 +55,32 @@ class Graph:
         
         self.edges.append(newEdge)
         return newEdge
+    
+    def find_children(self, id: int) -> dict:
+        result = {}
+        
+        for edge in self.edges:
+            if edge.source.id == id:
+                print("asd")
+                key = "node_" + str(edge.destination.id)
+                result[key] = {"hasChilds": "false", "id" : edge.destination.id }
+                for edge2 in self.edges:
+                    if edge2.source.id == edge.destination.id:
+                        result[key]["hasChilds"] = "true"
+
+        print(result)
+        print(id)
+        return result
+    
+    def find_node_which_have_children(self) -> dict:
+        result = {}
+        for edge in self.edges:
+            key = "node_" + str(edge.source.id)
+            result[key] = {"hasChilds": "true", "id" : edge.source.id }
+
+        print(result)
+        return result
+
+
+
+    

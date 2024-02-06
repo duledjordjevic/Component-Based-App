@@ -6,6 +6,7 @@
     <title>Application</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'index.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
     <div class="main-container">
@@ -52,13 +53,91 @@
         </div>
         <div class="views-container"> 
             <div class="views-container-left">
-                
+                <div id="tree-container">
+                    <ul class="tree">
+                    </ul>
+                </div>  
             </div>
-            <div class="views-container-right">
+            <div id="graph-container" class="views-container-right">
                 {{ mainView|safe }}
             </div>
         </div>
     </div>
 
+    
+      
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            function generateHTML(data, parentElement) {
+          
+              for (var key in data) {
+                var li = document.createElement("li");
+                li.setAttribute("node_id", data[key].id);
+
+                console.log(data[key].hasChilds)
+                if (data[key].hasChilds == 'false'){
+                    li.textContent = key;
+                    parentElement.appendChild(li);
+                }else{
+                    var details = document.createElement("details");
+                    var summary = document.createElement("summary");
+                    var ul = document.createElement("ul");
+                    summary.textContent = key;
+
+                    details.appendChild(summary);
+                    details.appendChild(ul);
+                    li.appendChild(details);
+                    (function(li) { 
+                        li.addEventListener("click", function() {
+                            if (li.querySelectorAll("li").length == 0) {
+                                console.log(li.getAttribute("node_id"))
+                                fetchNodes(li.querySelector("ul"), li.getAttribute("node_id"));
+                            }
+                        });
+                    })(li); 
+                }
+                parentElement.appendChild(li);
+              } 
+            }
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            function fetchNodes(ul, id) {
+                var csrftoken = getCookie('csrftoken');
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var nodes = JSON.parse(xhr.responseText);
+                        generateHTML(nodes, ul);
+                    }
+                };
+                
+                var url = "get_nodes" + "/" + id + "/";
+                xhr.open("GET", url, true); 
+                xhr.setRequestHeader('X-CSRFToken', csrftoken); 
+                xhr.send();
+            } 
+
+            if (document.getElementById("graph-container").children.length > 0){
+                var ul = document.getElementsByClassName("tree")[0];
+                fetchNodes(ul, 0);
+            }
+            
+          });
+    </script>
 </body>
 </html>
