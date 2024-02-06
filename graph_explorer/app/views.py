@@ -1,17 +1,14 @@
 from django.shortcuts import render
-from core.src.use_cases.load import Loader
-from core.src.use_cases.main_view import MainView
+from django.http import JsonResponse
+from core.src.use_cases.main import Core
 
-loader: Loader = Loader()
-loader.load_data_sources()
-loader.load_visualizers()
-mainView: MainView = MainView()
+core = Core()
 
 
-def base(request):
+def index(request):
     context = {
-        "data_sources":loader.data_sources.keys,
-        "visualizers": loader.visualizers.keys
+        "data_sources": core.loader.data_sources.keys,
+        "visualizers": core.loader.visualizers.keys
     }
 
     return render(request, 'index.html',context)
@@ -22,9 +19,17 @@ def show_main_view(request):
         sourcePlugin = request.POST.get("source", False)
 
     if not(visualizerPlugin and sourcePlugin):
-        return render(request, 'index.html',{"formInvalid":True,"data_sources":loader.data_sources.keys,
-                                        "visualizers": loader.visualizers.keys})
+        return render(request, 'index.html',{"formInvalid":True,"data_sources":core.loader.data_sources.keys,
+                                        "visualizers": core.loader.visualizers.keys})
     
-    return render(request, 'index.html',{'mainView':mainView.load_main_view(sourcePlugin,visualizerPlugin,loader),
-                                         "data_sources":loader.data_sources.keys,
-                                        "visualizers": loader.visualizers.keys})
+    return render(request, 'index.html',{'mainView':core.load_main_view(sourcePlugin,visualizerPlugin),
+                                         "data_sources":core.loader.data_sources.keys,
+                                        "visualizers": core.loader.visualizers.keys})
+
+
+def get_nodes(request, id):
+    if request.method == 'GET':
+        if id == 0:
+            return JsonResponse(core.graph.find_node_which_have_children())
+        return JsonResponse(core.graph.find_children(id))
+    return JsonResponse({})
