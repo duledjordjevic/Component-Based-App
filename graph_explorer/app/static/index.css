@@ -260,3 +260,8 @@ button:hover{
 #popupTitle {
     text-align: center;
 }
+
+#pluginsFormNotValid {
+    opacity: 0;
+    color: #9e0808;
+}

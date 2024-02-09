@@ -25,8 +25,12 @@
                         {% for source in data_sources %}
                             <option name="sourcePlugins" value="{{ source }}">{{ source }}</option>
                         {% endfor %}
-                    </select> 
+                    </select>
                     <button id="load-button">Load</button>
+                    <p id="pluginsFormNotValid">*please select both options</p>
+                    {% if popupFormInvalid %}
+                        <p>*all values in configuration are required</p>
+                    {% endif%}
                 </div>
             </div>
 
@@ -199,7 +203,6 @@
                     form.appendChild(document.createElement("br"));
                 }
 
-                   {#<button type="submit">Submit</button>#}
                 var button = document.createElement("button");
                 button.setAttribute("type", "submit");
                 button.innerHTML = "Submit";
@@ -232,9 +235,15 @@
                 var source = document.querySelector("[name='source']");
                 var selectedSource = source.options[source.selectedIndex].text;
 
-                if(selectedVisualizer == "" || selectedSource == "") {
+                console.log("#############");
+                console.log(selectedSource);
+                console.log(selectedVisualizer);
+
+                if(selectedVisualizer == "Visualizers" || selectedSource == "Sources") {
+                    document.getElementById("pluginsFormNotValid").style.opacity = "100";
                     return;
                 }
+                document.getElementById("pluginsFormNotValid").style.opacity = "0";
                 getConfigurationParams(selectedVisualizer, selectedSource);
             });
 

@@ -23,9 +23,9 @@ def show_main_view(request):
             if key != "source" and key != "visualizer":
                 configurationParams[key] = value
 
-    if not(visualizerPlugin and sourcePlugin):
-        return render(request, 'index.html',{"formInvalid":True,"data_sources":core.loader.data_sources.keys,
-                                        "visualizers": core.loader.visualizers.keys})
+            if value == "":
+                return render(request, 'index.html',{"popupFormInvalid":True,"data_sources":core.loader.data_sources.keys,
+                                                "visualizers": core.loader.visualizers.keys})
     
     return render(request, 'index.html',{'mainView':core.load_main_view(sourcePlugin, visualizerPlugin, configurationParams),
                                          "data_sources":core.loader.data_sources.keys,
