@@ -18,11 +18,16 @@ def show_main_view(request):
         visualizerPlugin = request.POST.get("visualizer",False)
         sourcePlugin = request.POST.get("source", False)
 
+        configurationParams = {}
+        for key, value in request.POST.items():
+            if key != "source" and key != "visualizer":
+                configurationParams[key] = value
+
     if not(visualizerPlugin and sourcePlugin):
         return render(request, 'index.html',{"formInvalid":True,"data_sources":core.loader.data_sources.keys,
                                         "visualizers": core.loader.visualizers.keys})
     
-    return render(request, 'index.html',{'mainView':core.load_main_view(sourcePlugin,visualizerPlugin),
+    return render(request, 'index.html',{'mainView':core.load_main_view(sourcePlugin, visualizerPlugin, configurationParams),
                                          "data_sources":core.loader.data_sources.keys,
                                         "visualizers": core.loader.visualizers.keys})
 
@@ -54,3 +59,14 @@ def filter(request):
             context["filterFormInvalid"] = True
 
         return render(request, 'index.html', context)
+
+
+def get_configuration_params(request):
+
+    if request.method == 'GET':
+        visualizerPlugin = request.GET.get("visualizer", False)
+        sourcePlugin = request.GET.get("source", False)
+
+        results = core.get_configuration_params(sourcePlugin)
+
+        return JsonResponse({"configuration_params": results})
