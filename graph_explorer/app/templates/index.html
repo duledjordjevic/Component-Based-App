@@ -14,8 +14,6 @@
             <div class="plugins-selector">
                 <h1>Graph visualizer</h1>
                 <div class="plugins">
-                <form id="selectPluginForm" action="{% url 'mainView' %}" method="POST">
-                    {% csrf_token %}
                     <select id="visualizersPlugin" name="visualizer">
                         <option value="" disabled selected hidden>Visualizers</option>
                         {% for visualizer in visualizers %}
@@ -27,12 +25,12 @@
                         {% for source in data_sources %}
                             <option name="sourcePlugins" value="{{ source }}">{{ source }}</option>
                         {% endfor %}
-                    </select> 
-                    <button id="load-button" type="submit" >Load</button>
-                </form>
-                {% if formInvalid %}
-                        <p>* please select both options</p>
-                {% endif%}
+                    </select>
+                    <button id="load-button">Load</button>
+                    <p id="pluginsFormNotValid">*please select both options</p>
+                    {% if popupFormInvalid %}
+                        <p>*all values in configuration are required</p>
+                    {% endif%}
                 </div>
             </div>
 
@@ -69,7 +67,15 @@
             </div>
         </div>
     </div>
-
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <h2 id="popupTitle">Configuration params</h2>
+            <form id="popup-form" action="{% url 'mainView' %}" method="POST">
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
     
       
     <script>
@@ -142,7 +148,106 @@
                 var ul = document.getElementsByClassName("tree")[0];
                 fetchNodes(ul, 0);
             }
-            
+
+            function getConfigurationParams(visualizer, data_source){
+                var csrftoken = getCookie('csrftoken');
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        console.log(xhr.responseText);
+                        var configuratonParams = JSON.parse(xhr.responseText);
+                        openPopup(configuratonParams, visualizer, data_source);
+                    }
+                };
+
+                var queryParams = "visualizer=" + visualizer + "&source=" + data_source;
+                var url = "get_configuration_params" + "?" + queryParams;
+                xhr.open("GET", url, true);
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                xhr.send();
+            }
+
+            var popup = document.getElementById("popup");
+            var closeButton = document.querySelector(".close-popup");
+            var loadButton = document.getElementById("load-button");
+
+            function openPopup(configuratonParams, visualizer, data_source) {
+                var form = document.getElementById("popup-form");
+
+                var inputVisualizer = document.createElement("input");
+                inputVisualizer.setAttribute("name", "visualizer");
+                inputVisualizer.setAttribute("type", "hidden");
+                inputVisualizer.value = visualizer;
+
+                var inputSource = document.createElement("input");
+                inputSource.setAttribute("name", "source");
+                inputSource.setAttribute("type", "hidden");
+                inputSource.value = data_source;
+
+                form.appendChild(inputVisualizer);
+                form.appendChild(inputSource);
+
+                for(var i in configuratonParams["configuration_params"]){
+                    var key = configuratonParams["configuration_params"][i];
+                    var label = document.createElement("label");
+                    label.innerHTML = key;
+                    var input = document.createElement("input");
+
+                    input.setAttribute("name", key);
+                    input.setAttribute("type", "text");
+
+                    form.appendChild(label);
+                    form.appendChild(input);
+                    form.appendChild(document.createElement("br"));
+                    form.appendChild(document.createElement("br"));
+                }
+
+                var button = document.createElement("button");
+                button.setAttribute("type", "submit");
+                button.innerHTML = "Submit";
+
+                form.appendChild(document.createElement("br"));
+                form.appendChild(button);
+                popup.style.display = "block";
+                centerPopup();
+            }
+
+            function closePopup() {
+                popup.style.display = "none";
+            }
+
+            function centerPopup() {
+                var popupContent = document.querySelector(".popup-content");
+                var windowHeight = window.innerHeight;
+                var windowWidth = window.innerWidth;
+                var popupHeight = popupContent.offsetHeight;
+                var popupWidth = popupContent.offsetWidth;
+
+                popupContent.style.top = (windowHeight - popupHeight) / 2 + "px";
+                popupContent.style.left = (windowWidth - popupWidth) / 2 + "px";
+            }
+
+            closeButton.addEventListener("click", closePopup);
+            loadButton.addEventListener("click", function (){
+                var visualizer = document.querySelector("[name='visualizer']");
+                var selectedVisualizer = visualizer.options[visualizer.selectedIndex].text;
+                var source = document.querySelector("[name='source']");
+                var selectedSource = source.options[source.selectedIndex].text;
+
+                console.log("#############");
+                console.log(selectedSource);
+                console.log(selectedVisualizer);
+
+                if(selectedVisualizer == "Visualizers" || selectedSource == "Sources") {
+                    document.getElementById("pluginsFormNotValid").style.opacity = "100";
+                    return;
+                }
+                document.getElementById("pluginsFormNotValid").style.opacity = "0";
+                getConfigurationParams(selectedVisualizer, selectedSource);
+            });
+
+            window.addEventListener("resize", centerPopup);
           });
     </script>
 </body>

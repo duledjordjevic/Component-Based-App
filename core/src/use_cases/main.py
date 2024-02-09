@@ -12,9 +12,9 @@ class Core:
         self.current_visualizer: str = ""
         
     
-    def load_main_view(self,  data_source_key:str, visualizer_key:str):
+    def load_main_view(self,  data_source_key:str, visualizer_key:str, configuration_params:dict):
         data_source = self.loader.data_sources[data_source_key]
-        self.graph = data_source.load_graph()
+        self.graph = data_source.load_graph(configuration_params)
         self.current_visualizer = visualizer_key
         retVal = self.loader.visualizers[visualizer_key].show_graph(self.graph)
         return retVal
@@ -33,3 +33,7 @@ class Core:
 
         retVal = self.loader.visualizers[self.current_visualizer].show_graph(self.graph)
         return retVal, True
+
+    def get_configuration_params(self,  data_source_key:str):
+        data_source = self.loader.data_sources[data_source_key]
+        return data_source.get_configuration_params()

@@ -4,11 +4,9 @@ from api.src.plugin.models.graph import *
 from api.src.plugin.services.service_base import GraphLoadBase
 
 
-MAX_NODES = 10
 MAX_OUTER_FOR = 100
 MAX_INNER_FOR = 2
 auth = Auth.Token('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')
-username = "amigoscode"
 
 def add_node(namedUser: NamedUser,graph: Graph) -> Node:
     return graph.add_node({"username" : str(namedUser).split('\"')[1],
@@ -21,7 +19,11 @@ def add_edge(source: Node, destination: Node, graph: Graph) -> Edge:
     return graph.add_edge(source, destination)
 
 
-def load_graph_from_github_api() -> Graph:
+def load_graph_from_github_api(configuration_params:dict) -> Graph:
+
+    MAX_NODES = int(configuration_params["Max nodes"])
+    username = configuration_params["Username"]
+
     github = Github(auth=auth)
     graph = Graph()
     user = github.get_user(username)
@@ -73,5 +75,8 @@ class GraphLoadGithub(GraphLoadBase):
     def name(self):
         return "Load Graph from Github API"
     
-    def load_graph(self) -> Graph:
-        return load_graph_from_github_api()
+    def load_graph(self, configuration_params:dict) -> Graph:
+        return load_graph_from_github_api(configuration_params)
+
+    def get_configuration_params(self) -> list:
+        return ["Max nodes", "Username"]

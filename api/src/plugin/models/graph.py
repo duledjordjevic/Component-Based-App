@@ -111,7 +111,6 @@ class Graph:
                 searchedValue = int(value)
                 isNumber = True
             except:
-                print("Exception")
                 return False
 
         for node in self.nodes:
@@ -119,9 +118,9 @@ class Graph:
                 expression = f"{node.data[key]} {comparison_operator} {value}"
             else:
                 expression = f'"{node.data[key]}" {comparison_operator} "{value}"'
-            print(expression)
+
             result = eval(expression)
-            print(result)
+
             if result:
                 result_nodes.append(node)
 
