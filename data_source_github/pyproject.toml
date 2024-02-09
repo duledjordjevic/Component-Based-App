@@ -8,4 +8,4 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project.entry-points."graph.load"]
-graph_load_github = "pkg.data_source:GraphLoadGithub"
+graph_load_github = "data_source_github.src.plugin.data_source:GraphLoadGithub"
