@@ -35,21 +35,27 @@
                 {% endif%}
                 </div>
             </div>
-            <div class="filter-container">
-                <input placeholder="Search by text" id="input-search">
-                <input placeholder="First value" id="input-filter">
-                <select id="comparisonOperator" name="comparisonOperator">
-                    <option value="<">&lt;</option>
-                    <option value=">">&gt;</option>
-                    <option value="<=">&le;</option>
-                    <option value=">=">&ge;</option>
-                    <option value="==">==</option>
-                    <option value="!=">!=</option>
-                </select>
-                <input placeholder="Second value" id="input-filter">
-                <button id="search-button">Search</button>
 
-            </div>    
+            <form id="filterForm" action="{% url 'filter' %}" method="POST">
+                {% csrf_token %}
+                <div class="filter-container">
+                    <input placeholder="Search by text" name="search_text" id="input-search">
+                    <input placeholder="Key" name="key" id="input-first_value">
+                    <select name="comparison_operator" id="comparisonOperator">
+                        <option value="<">&lt;</option>
+                        <option value=">">&gt;</option>
+                        <option value="<=">&le;</option>
+                        <option value=">=">&ge;</option>
+                        <option value="==">==</option>
+                        <option value="!=">!=</option>
+                    </select>
+                    <input placeholder="Value" name="value" id="input-second-value">
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+            {% if filterFormInvalid %}
+                <p>* please enter valid key or value</p>
+            {% endif%}
         </div>
         <div class="views-container"> 
             <div class="views-container-left">

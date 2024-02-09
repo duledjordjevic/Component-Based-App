@@ -81,6 +81,55 @@ class Graph:
         print(result)
         return result
 
+    def search(self, keyword: str) -> None:
+        result_nodes = []
+        result_edges = []
 
+        for node in self.nodes:
+            for value in node.data.values():
+                if keyword.lower() in str(value).lower():
+                    result_nodes.append(node)
+                    break
 
-    
+        for edge in self.edges:
+            if edge.source in result_nodes and edge.destination in result_nodes:
+                result_edges.append(edge)
+
+        self.nodes = result_nodes
+        self.edges = result_edges
+
+    def filter(self, key, value, comparison_operator) -> bool:
+        result_nodes = []
+        result_edges = []
+
+        if key not in self.nodes[0].data.keys():
+            return False
+
+        isNumber = False
+        if isinstance(self.nodes[0].data[key], int):
+            try:
+                searchedValue = int(value)
+                isNumber = True
+            except:
+                print("Exception")
+                return False
+
+        for node in self.nodes:
+            if isNumber:
+                expression = f"{node.data[key]} {comparison_operator} {value}"
+            else:
+                expression = f'"{node.data[key]}" {comparison_operator} "{value}"'
+            print(expression)
+            result = eval(expression)
+            print(result)
+            if result:
+                result_nodes.append(node)
+
+        for edge in self.edges:
+            if edge.source in result_nodes and edge.destination in result_nodes:
+                result_edges.append(edge)
+
+        self.nodes = result_nodes
+        self.edges = result_edges
+
+        return True
