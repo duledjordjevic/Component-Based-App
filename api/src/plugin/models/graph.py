@@ -81,6 +81,30 @@ class Graph:
         print(result)
         return result
 
+    def search(self, keyword: str) -> None:
+        result_nodes = []
+        result_edges = []
+
+        for node in self.nodes:
+            for key, value in node.data.items():
+                if keyword in str(key) or keyword in str(value):
+                    result_nodes.append(node)
+                    break
+
+        for edge in self.edges:
+            if edge.source in result_nodes and edge.destination in result_nodes:
+                result_edges.append(edge)
+
+        self.nodes = result_nodes
+        self.edges = result_edges
+
+    def filter(self, key, value, comparison_operator) -> bool:
+        result_nodes = []
+        result_edges = []
+
+        for node in self.nodes:
+            if key not in node.data.keys():
+                return False
 
 
-    
+        return True
