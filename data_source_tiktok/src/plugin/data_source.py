@@ -13,16 +13,14 @@ querystring = {
 }
 
 headers = {
-    "X-RapidAPI-Key": "92d1ab464bmsh691fe704b1a8ccbp1e85d7jsn0475855f8689",
-    "X-RapidAPI-Host": "tiktok-api15.p.rapidapi.com"
+	"X-RapidAPI-Key": "87b7429b0cmsh23aa368f85d73afp1e8b19jsn6078007ccadb",
+	"X-RapidAPI-Host": "tiktok-api15.p.rapidapi.com"
 }
-
 response = requests.get(url, headers=headers, params=querystring)
 
 comments_data = response.json()
 
 
-# MAX_NODES = 200
 MAX_REPLIES_NUMBER = 20
 
 def add_node(text, id, graph):
@@ -55,10 +53,9 @@ def load_graph_from_tiktok_api(configuration_params:dict):
 
             urlReplies = "https://tiktok-api15.p.rapidapi.com/index/Tiktok/getReplyListByCommentId"
             headersReplies = {
-                "X-RapidAPI-Key": "92d1ab464bmsh691fe704b1a8ccbp1e85d7jsn0475855f8689",
+                "X-RapidAPI-Key": "87b7429b0cmsh23aa368f85d73afp1e8b19jsn6078007ccadb",
                 "X-RapidAPI-Host": "tiktok-api15.p.rapidapi.com"
             }
-
             responseReplies = requests.get(urlReplies, headers=headersReplies, params=querystringReplies)
 
             if responseReplies.status_code == 200:
@@ -91,4 +88,4 @@ class GraphLoadTiktok(GraphLoadBase):
         return load_graph_from_tiktok_api(configuration_params)
 
     def get_configuration_params(self) -> list:
-        return []
+        return ["Max nodes", "Tiktok url"]
