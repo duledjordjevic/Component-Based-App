@@ -1,0 +1,17 @@
+[project]
+name = "block_visualizer"
+version = "0.1"
+dependencies = []
+
+[build-system]             
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."graph.visualizer"]
+graph_block_visualizer = "block_visualizer.src.plugin.block_visualizer:GraphBlockVisualizer"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+plugin = ["*.html", "static/*.js"]

@@ -1,0 +1,11 @@
+[project]
+name = "data_source_github"
+version = "0.1"
+dependencies = []
+
+[build-system]             
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."graph.load"]
+graph_load_github = "data_source_github.src.plugin.data_source:GraphLoadGithub"

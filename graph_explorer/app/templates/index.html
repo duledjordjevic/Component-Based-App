@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-container">
+            <div class="plugins-selector">
+                <h1>Graph visualizer</h1>
+                <div class="plugins">
+                    <select id="visualizersPlugin" name="visualizer">
+                        <option value="" disabled selected hidden>Visualizers</option>
+                        {% for visualizer in visualizers %}
+                            <option value="{{ visualizer }}">{{ visualizer }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="sourcePlugins" name="source">
+                        <option value="" disabled selected hidden>Sources</option>
+                        {% for source in data_sources %}
+                            <option name="sourcePlugins" value="{{ source }}">{{ source }}</option>
+                        {% endfor %}
+                    </select>
+                    <button id="load-button">Load</button>
+                    <p id="pluginsFormNotValid">*please select both options</p>
+                    {% if popupFormInvalid %}
+                        <p>*all values in configuration are required</p>
+                    {% endif%}
+                </div>
+            </div>
+
+            <form id="filterForm" action="{% url 'filter' %}" method="POST">
+                {% csrf_token %}
+                <div class="filter-container">
+                    <input placeholder="Search by text" name="search_text" id="input-search">
+                    <input placeholder="Key" name="key" id="input-first_value">
+                    <select name="comparison_operator" id="comparisonOperator">
+                        <option value="<">&lt;</option>
+                        <option value=">">&gt;</option>
+                        <option value="<=">&le;</option>
+                        <option value=">=">&ge;</option>
+                        <option value="==">==</option>
+                        <option value="!=">!=</option>
+                    </select>
+                    <input placeholder="Value" name="value" id="input-second-value">
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+            {% if filterFormInvalid %}
+                <p>* please enter valid key or value</p>
+            {% endif%}
+        </div>
+        <div class="views-container"> 
+            <div class="views-container-left">
+                <div id="tree-container">
+                    <ul class="tree">
+                    </ul>
+                </div>  
+            </div>
+            <div id="graph-container" class="views-container-right">
+                {{ mainView|safe }}
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <h2 id="popupTitle">Configuration params</h2>
+            <form id="popup-form" action="{% url 'mainView' %}" method="POST">
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+    
+      
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            function generateHTML(data, parentElement) {
+          
+              for (var key in data) {
+                var li = document.createElement("li");
+                li.setAttribute("node_id", data[key].id);
+
+                console.log(data[key].hasChilds)
+                if (data[key].hasChilds == 'false'){
+                    li.textContent = key;
+                    parentElement.appendChild(li);
+                }else{
+                    var details = document.createElement("details");
+                    var summary = document.createElement("summary");
+                    var ul = document.createElement("ul");
+                    summary.textContent = key;
+
+                    details.appendChild(summary);
+                    details.appendChild(ul);
+                    li.appendChild(details);
+                    (function(li) { 
+                        li.addEventListener("click", function() {
+                            if (li.querySelectorAll("li").length == 0) {
+                                console.log(li.getAttribute("node_id"))
+                                fetchNodes(li.querySelector("ul"), li.getAttribute("node_id"));
+                            }
+                        });
+                    })(li); 
+                }
+                parentElement.appendChild(li);
+              } 
+            }
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            function fetchNodes(ul, id) {
+                var csrftoken = getCookie('csrftoken');
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var nodes = JSON.parse(xhr.responseText);
+                        generateHTML(nodes, ul);
+                    }
+                };
+                
+                var url = "get_nodes" + "/" + id + "/";
+                xhr.open("GET", url, true); 
+                xhr.setRequestHeader('X-CSRFToken', csrftoken); 
+                xhr.send();
+            } 
+
+            if (document.getElementById("graph-container").children.length > 0){
+                var ul = document.getElementsByClassName("tree")[0];
+                fetchNodes(ul, 0);
+            }
+
+            function getConfigurationParams(visualizer, data_source){
+                var csrftoken = getCookie('csrftoken');
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        console.log(xhr.responseText);
+                        var configuratonParams = JSON.parse(xhr.responseText);
+                        openPopup(configuratonParams, visualizer, data_source);
+                    }
+                };
+
+                var queryParams = "visualizer=" + visualizer + "&source=" + data_source;
+                var url = "get_configuration_params" + "?" + queryParams;
+                xhr.open("GET", url, true);
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                xhr.send();
+            }
+
+            var popup = document.getElementById("popup");
+            var closeButton = document.querySelector(".close-popup");
+            var loadButton = document.getElementById("load-button");
+
+            function openPopup(configuratonParams, visualizer, data_source) {
+                var form = document.getElementById("popup-form");
+
+                var inputVisualizer = document.createElement("input");
+                inputVisualizer.setAttribute("name", "visualizer");
+                inputVisualizer.setAttribute("type", "hidden");
+                inputVisualizer.value = visualizer;
+
+                var inputSource = document.createElement("input");
+                inputSource.setAttribute("name", "source");
+                inputSource.setAttribute("type", "hidden");
+                inputSource.value = data_source;
+
+                form.appendChild(inputVisualizer);
+                form.appendChild(inputSource);
+
+                for(var i in configuratonParams["configuration_params"]){
+                    var key = configuratonParams["configuration_params"][i];
+                    var label = document.createElement("label");
+                    label.innerHTML = key;
+                    var input = document.createElement("input");
+
+                    input.setAttribute("name", key);
+                    input.setAttribute("type", "text");
+
+                    form.appendChild(label);
+                    form.appendChild(input);
+                    form.appendChild(document.createElement("br"));
+                    form.appendChild(document.createElement("br"));
+                }
+
+                var button = document.createElement("button");
+                button.setAttribute("type", "submit");
+                button.innerHTML = "Submit";
+
+                form.appendChild(document.createElement("br"));
+                form.appendChild(button);
+                popup.style.display = "block";
+                centerPopup();
+            }
+
+            function closePopup() {
+                popup.style.display = "none";
+            }
+
+            function centerPopup() {
+                var popupContent = document.querySelector(".popup-content");
+                var windowHeight = window.innerHeight;
+                var windowWidth = window.innerWidth;
+                var popupHeight = popupContent.offsetHeight;
+                var popupWidth = popupContent.offsetWidth;
+
+                popupContent.style.top = (windowHeight - popupHeight) / 2 + "px";
+                popupContent.style.left = (windowWidth - popupWidth) / 2 + "px";
+            }
+
+            closeButton.addEventListener("click", closePopup);
+            loadButton.addEventListener("click", function (){
+                var visualizer = document.querySelector("[name='visualizer']");
+                var selectedVisualizer = visualizer.options[visualizer.selectedIndex].text;
+                var source = document.querySelector("[name='source']");
+                var selectedSource = source.options[source.selectedIndex].text;
+
+                console.log("#############");
+                console.log(selectedSource);
+                console.log(selectedVisualizer);
+
+                if(selectedVisualizer == "Visualizers" || selectedSource == "Sources") {
+                    document.getElementById("pluginsFormNotValid").style.opacity = "100";
+                    return;
+                }
+                document.getElementById("pluginsFormNotValid").style.opacity = "0";
+                getConfigurationParams(selectedVisualizer, selectedSource);
+            });
+
+            window.addEventListener("resize", centerPopup);
+          });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+[project]
+name = "simple_visualizer"
+version = "0.1"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."graph.visualizer"]
+graph_simple_visualizer = "simple_visualizer.src.plugin.simple_visualizer:GraphSimpleVisualizer"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+plugin = ["*.html", "static/*.js"]
