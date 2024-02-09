@@ -86,8 +86,8 @@ class Graph:
         result_edges = []
 
         for node in self.nodes:
-            for key, value in node.data.items():
-                if keyword in str(key) or keyword in str(value):
+            for value in node.data.values():
+                if keyword.lower() in str(value).lower():
                     result_nodes.append(node)
                     break
 
@@ -102,9 +102,34 @@ class Graph:
         result_nodes = []
         result_edges = []
 
-        for node in self.nodes:
-            if key not in node.data.keys():
+        if key not in self.nodes[0].data.keys():
+            return False
+
+        isNumber = False
+        if isinstance(self.nodes[0].data[key], int):
+            try:
+                searchedValue = int(value)
+                isNumber = True
+            except:
+                print("Exception")
                 return False
 
+        for node in self.nodes:
+            if isNumber:
+                expression = f"{node.data[key]} {comparison_operator} {value}"
+            else:
+                expression = f'"{node.data[key]}" {comparison_operator} "{value}"'
+            print(expression)
+            result = eval(expression)
+            print(result)
+            if result:
+                result_nodes.append(node)
+
+        for edge in self.edges:
+            if edge.source in result_nodes and edge.destination in result_nodes:
+                result_edges.append(edge)
+
+        self.nodes = result_nodes
+        self.edges = result_edges
 
         return True

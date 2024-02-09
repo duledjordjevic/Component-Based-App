@@ -20,12 +20,16 @@ class Core:
         return retVal
 
     def filter_graph(self, searchText, key, value, comparison_operator):
-        retVal = self.loader.visualizers[self.current_visualizer].show_graph(self.graph)
-        isValid = self.graph.filter(key, value, comparison_operator)
+        if self.graph is not None and len(self.graph.nodes) > 0:
+            if key != "":
+                retVal = self.loader.visualizers[self.current_visualizer].show_graph(self.graph)
+                isValid = self.graph.filter(key, value, comparison_operator)
 
-        if not isValid:
-            return retVal, False
+                if not isValid:
+                    return retVal, False
 
-        self.graph.search(searchText)
+            if searchText != "":
+                self.graph.search(searchText)
+
         retVal = self.loader.visualizers[self.current_visualizer].show_graph(self.graph)
-        return retVal, isValid
+        return retVal, True
