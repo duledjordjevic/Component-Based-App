@@ -73,7 +73,6 @@ button:hover{
 .views-container{
     min-height: 1000px;
     width: 100%;
-    background-color: #F6F8FA;
 }
 #selectPluginForm{
     display: flex;
@@ -115,26 +114,19 @@ button:hover{
 .views-container-left{
     width: 500px;
     flex: 3;
-    background-color: #fff;
+    background-color: #F6F8FA;
 }
 
 .views-container-right{
-    background-color: white;
+    background-color: #F6F8FA;
     width: max-content;
     flex: 10;
 }
 
 .views-container-left {
-    /* Postavite maksimalnu visinu */
-    max-height: 500px; /* Na primjer, postavite visinu na 300 piksela */
-
-    /* Postavite širinu */
-    width: 400px; /* Na primjer, postavite širinu na 200 piksela */
-
-    /* Dodajte overflow kako biste omogućili scroll ako sadržaj prelazi granice */
-    overflow: auto; /* Scroll će se pojaviti samo ako je potreban */
-
-    /* Opciono: možete postaviti ostale stilove po potrebi */
+    max-height: 700px; 
+    width: 400px; 
+    overflow: auto; 
 }
 
 
