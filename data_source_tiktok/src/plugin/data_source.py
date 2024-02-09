@@ -22,7 +22,7 @@ response = requests.get(url, headers=headers, params=querystring)
 comments_data = response.json()
 
 
-MAX_NODES = 200
+# MAX_NODES = 200
 MAX_REPLIES_NUMBER = 20
 
 def add_node(text, id, graph):
@@ -33,7 +33,11 @@ def add_edge(source, destination, graph):
     return graph.add_edge(source, destination)
 
 
-def load_graph_from_tiktok_api():
+def load_graph_from_tiktok_api(configuration_params:dict):
+
+    MAX_NODES = int(configuration_params["Max nodes"])
+    querystring["url"] = configuration_params["Tiktok url"]
+
     graph = Graph()
     nodes_size = 0
     if 'data' in comments_data and 'comments' in comments_data['data']:
@@ -42,8 +46,7 @@ def load_graph_from_tiktok_api():
         for comment in comments:
             comment_id = comment.get('id')
             comment_text = comment.get('text')
-            # print(f"Comment ID: {comment_id}")
-            # print(f"Comment text: {comment.get('text')}")
+
             commentNode = add_node(comment_text, comment_id, graph)
             nodes_size += 1
             if (nodes_size == MAX_NODES):
@@ -65,7 +68,6 @@ def load_graph_from_tiktok_api():
                     replies = replies_data['data']['comments']
                     for reply in replies:
                         reply_text = reply.get('text')
-                        # print(f"Reply to comment {comment_id}: {reply_text}")
                         replyNode = add_node(reply_text, 0, graph)
                         nodes_size += 1
                         if (nodes_size == MAX_NODES):
@@ -85,5 +87,8 @@ class GraphLoadTiktok(GraphLoadBase):
     def name(self):
         return "Load Graph from Tiktok API"
     
-    def load_graph(self) -> Graph:
-        return load_graph_from_tiktok_api()
+    def load_graph(self, configuration_params:dict) -> Graph:
+        return load_graph_from_tiktok_api(configuration_params)
+
+    def get_configuration_params(self) -> list:
+        return []
