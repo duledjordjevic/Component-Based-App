@@ -6,6 +6,7 @@
     <title>Application</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -64,7 +65,10 @@
             </div>
             <div id="graph-container" class="views-container-right">
                 {{ mainView|safe }}
+                <div class="node-info">
+                </div>
             </div>
+                
         </div>
     </div>
     <div id="popup" class="popup">
@@ -76,10 +80,49 @@
             </form>
         </div>
     </div>
+
+    <div id="workspaces">
+        <button id="addWorkspaceBtn">Add</button>
+        {% for i in workspaceLength %}
+            <a href="/workspace/{{ i }}">Workspace {{ i  }}</a>
+        {% endfor %}
+    </div>
     
       
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+
+            var currentWorkspace = 0;
+            var workspaces = document.getElementById("workspaces");
+            var addWorkspaceBtn = document.getElementById("addWorkspaceBtn");     
+
+            addWorkspaceBtn.addEventListener("click", function() {
+                var a = document.createElement("a");
+                var counter = workspaces.children.length - 1;
+                a.setAttribute("href", "/workspace/" + counter);
+                a.innerHTML = "Workspace " + counter;
+                workspaces.appendChild(a);
+                addWorkspace();
+            })
+
+            function addWorkspace() {
+                var csrftoken = getCookie('csrftoken');
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        
+                    }
+                };
+
+                
+                var url = "/add_workspace" ;
+                xhr.open("POST", url, true); 
+                xhr.setRequestHeader('X-CSRFToken', csrftoken); 
+                xhr.send();
+            } 
+
+
 
             function generateHTML(data, parentElement) {
           
@@ -138,13 +181,13 @@
                     }
                 };
                 
-                var url = "get_nodes" + "/" + id + "/";
+                var url = "/get_nodes" + "/" + id + "/";
                 xhr.open("GET", url, true); 
                 xhr.setRequestHeader('X-CSRFToken', csrftoken); 
                 xhr.send();
             } 
 
-            if (document.getElementById("graph-container").children.length > 0){
+            if (document.getElementById("graph-container").children.length > 1){
                 var ul = document.getElementsByClassName("tree")[0];
                 fetchNodes(ul, 0);
             }
@@ -162,7 +205,7 @@
                 };
 
                 var queryParams = "visualizer=" + visualizer + "&source=" + data_source;
-                var url = "get_configuration_params" + "?" + queryParams;
+                var url = "/get_configuration_params" + "?" + queryParams;
                 xhr.open("GET", url, true);
                 xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 xhr.send();
@@ -174,6 +217,7 @@
 
             function openPopup(configuratonParams, visualizer, data_source) {
                 var form = document.getElementById("popup-form");
+                form.innerHTML = '{% csrf_token %}';
 
                 var inputVisualizer = document.createElement("input");
                 inputVisualizer.setAttribute("name", "visualizer");
@@ -185,8 +229,14 @@
                 inputSource.setAttribute("type", "hidden");
                 inputSource.value = data_source;
 
+                var inputWorkspace = document.createElement("input");
+                inputWorkspace.setAttribute("name", "workspace");
+                inputWorkspace.setAttribute("type", "hidden");
+                inputWorkspace.value = currentWorkspace;
+
                 form.appendChild(inputVisualizer);
                 form.appendChild(inputSource);
+                form.appendChild(inputWorkspace);
 
                 for(var i in configuratonParams["configuration_params"]){
                     var key = configuratonParams["configuration_params"][i];

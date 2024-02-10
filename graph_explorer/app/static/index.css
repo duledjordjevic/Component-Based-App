@@ -1,5 +1,6 @@
 body{
     margin:0;
+    font-family: 'Roboto', sans-serif;
 }
 
 .main-container{
@@ -17,8 +18,7 @@ body{
 .filter-container{
     display: flex;
     /* border-left: 2px solid black; */
-    padding: 40px;
-    width: 100%;
+    padding: 20px;
     align-items: center;
     justify-content: center;
 }
@@ -34,7 +34,7 @@ input{
     width: 100px;
 }
 #input-search{
-    margin-right: 100px;
+    margin-right: 50px;
 }
 select{
     width: 60px;
@@ -75,8 +75,7 @@ button:hover{
     width: 100%;
 }
 .plugins {
-    display: flex;
-    width: 100%;
+    width: 380px;
     gap: 20px;
     justify-content: space-around;
     padding-bottom: 20px;
@@ -87,7 +86,7 @@ button:hover{
 }
 .plugins-selector{
     justify-content: center;
-    padding: 40px;
+    padding: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
     display: flex;
@@ -118,6 +117,7 @@ button:hover{
 }
 
 .views-container-right{
+    position:relative;
     background-color: #F6F8FA;
     width: max-content;
     flex: 10;
@@ -224,7 +224,8 @@ button:hover{
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
-    max-width: 500px; /* Možete prilagoditi širinu po potrebi */
+    max-width: 420px;
+    border-radius: 20px
 }
 
 .close-popup {
@@ -246,15 +247,15 @@ button:hover{
 }
 
 #popup-form {
-    text-align: center; /* Postavljanje svih elemenata forme na sredinu */
+    text-align: center; 
 }
 
 #popup-form h2 {
-    margin: 0 auto; /* Postavljanje margin-left i margin-right na auto će centrirati naslov */
+    margin: 0 auto; 
 }
 
 #popup-form button[type="submit"] {
-    margin-top: 10px; /* Dodajte odgovarajući razmak iznad gumba */
+    margin-top: 10px;
 }
 
 #popupTitle {
@@ -264,4 +265,33 @@ button:hover{
 #pluginsFormNotValid {
     opacity: 0;
     color: #9e0808;
+}
+
+.node-info{
+    background-color: #F6F8FA;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 200px;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    overflow-x: auto; 
+    overflow-y: auto;
+    text-align: center;
+}
+
+#filterForm{
+    margin: auto;
+    width: 100%;
+}
+
+#workspaces{
+    padding: 20px;
+}
+
+#workspaces a{
+    color: #235471;
+    text-decoration: none;
+    margin-left: 10px;
 }
