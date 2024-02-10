@@ -304,6 +304,10 @@
                 dataContainer.style.fontSize = "10px"; 
                 dataContainer.style.overflow = "auto";
                 dataContainer.style.margin = "auto";
+                var title = document.createElement("p");
+                title.style.padding = "2px";
+                title.textContent =  d.name;
+                dataContainer.appendChild(title);
 
                 Object.entries(d.data).forEach(function([key, value], index) {
            
