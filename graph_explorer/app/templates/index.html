@@ -6,6 +6,7 @@
     <title>Application</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -64,7 +65,10 @@
             </div>
             <div id="graph-container" class="views-container-right">
                 {{ mainView|safe }}
+                <div class="node-info">
+                </div>
             </div>
+                
         </div>
     </div>
     <div id="popup" class="popup">
@@ -174,6 +178,7 @@
 
             function openPopup(configuratonParams, visualizer, data_source) {
                 var form = document.getElementById("popup-form");
+                form.innerHTML = '{% csrf_token %}';
 
                 var inputVisualizer = document.createElement("input");
                 inputVisualizer.setAttribute("name", "visualizer");

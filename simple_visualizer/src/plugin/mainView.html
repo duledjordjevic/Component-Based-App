@@ -19,7 +19,7 @@
 </style>
 <script>
     function nodeClick(el){
-       console.log("ID: "+el.id);
+        
     }
 </script>
 
@@ -297,6 +297,23 @@
         var firstValue = d.data[firstKey];
 
         d3.selectAll("g#" + d.name)
+            .on("click",function(event){
+                var dataContainer = document.querySelector(".node-info");
+                dataContainer.innerHTML = "";
+                dataContainer.style.fontSize = "10px"; 
+                dataContainer.style.overflow = "auto";
+                dataContainer.style.margin = "auto";
+
+                Object.entries(d.data).forEach(function([key, value], index) {
+           
+                    var paragraph = document.createElement("p");
+                    paragraph.style.padding = "2px";
+                    paragraph.textContent = key + ": " + d.data[key];
+
+                    dataContainer.appendChild(paragraph);
+            
+                });
+            })
             .append('circle')
             .attr('r', radius / 2)
             .attr('fill', '#77BFA3');
