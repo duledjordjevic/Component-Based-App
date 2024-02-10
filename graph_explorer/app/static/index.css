@@ -285,3 +285,13 @@ button:hover{
     margin: auto;
     width: 100%;
 }
+
+#workspaces{
+    padding: 20px;
+}
+
+#workspaces a{
+    color: #235471;
+    text-decoration: none;
+    margin-left: 10px;
+}

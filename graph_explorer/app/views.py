@@ -2,17 +2,39 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from core.src.use_cases.main import Core
 
-core = Core()
-
+# core = Core()
+workspaces = [Core()]
+currentWorkspace = 0
 
 def index(request):
     context = {
-        "data_sources": core.loader.data_sources.keys,
-        "visualizers": core.loader.visualizers.keys
+        "data_sources": workspaces[currentWorkspace].loader.data_sources.keys,
+        "visualizers": workspaces[currentWorkspace].loader.visualizers.keys,
+        "workspaceLength": range(len(workspaces))
     }
 
     return render(request, 'index.html',context)
 
+def add_workspace(request):
+    if request.method == 'POST':
+        workspaces.append(Core())
+    print(len(workspaces))
+
+def get_workspace(request, index):
+    if request.method == 'GET':
+        global currentWorkspace
+        currentWorkspace = index
+        print(workspaces)
+        print("Index:", index)
+        
+        context = {"data_sources":workspaces[currentWorkspace].loader.data_sources.keys,
+                    "visualizers": workspaces[currentWorkspace].loader.visualizers.keys,
+                    "workspaceLength": range(len(workspaces))}
+        mainView = workspaces[index].load_workspace()
+        if mainView:
+            context["mainView"] = mainView
+        return render(request, 'index.html',context)
+    
 def show_main_view(request):
     if request.method == 'POST':
         visualizerPlugin = request.POST.get("visualizer",False)
@@ -24,19 +46,22 @@ def show_main_view(request):
                 configurationParams[key] = value
 
             if value == "":
-                return render(request, 'index.html',{"popupFormInvalid":True,"data_sources":core.loader.data_sources.keys,
-                                                "visualizers": core.loader.visualizers.keys})
+                return render(request, 'index.html',{"popupFormInvalid":True,"data_sources":workspaces[currentWorkspace].loader.data_sources.keys,
+                                                "visualizers": workspaces[currentWorkspace].loader.visualizers.keys,
+                                                "workspaceLength": range(len(workspaces))})
     
-    return render(request, 'index.html',{'mainView':core.load_main_view(sourcePlugin, visualizerPlugin, configurationParams),
-                                         "data_sources":core.loader.data_sources.keys,
-                                        "visualizers": core.loader.visualizers.keys})
+    print(currentWorkspace)
+    return render(request, 'index.html',{'mainView':workspaces[currentWorkspace].load_main_view(sourcePlugin, visualizerPlugin, configurationParams),
+                                         "data_sources":workspaces[currentWorkspace].loader.data_sources.keys,
+                                        "visualizers": workspaces[currentWorkspace].loader.visualizers.keys,
+                                        "workspaceLength": range(len(workspaces))})
 
 
 def get_nodes(request, id):
     if request.method == 'GET':
         if id == 0:
-            return JsonResponse(core.graph.find_node_which_have_children())
-        return JsonResponse(core.graph.find_children(id))
+            return JsonResponse(workspaces[currentWorkspace].graph.find_node_which_have_children())
+        return JsonResponse(workspaces[currentWorkspace].graph.find_children(id))
     return JsonResponse({})
 
 
@@ -47,12 +72,13 @@ def filter(request):
         comparison_operator = request.POST.get("comparison_operator", False)
         value = request.POST.get("value", False)
 
-        result, isValid = core.filter_graph(searchText, key, value, comparison_operator)
+        result, isValid = workspaces[currentWorkspace].filter_graph(searchText, key, value, comparison_operator)
 
         context = {
             'mainView': result,
-            "data_sources": core.loader.data_sources.keys,
-            "visualizers": core.loader.visualizers.keys
+            "data_sources": workspaces[currentWorkspace].loader.data_sources.keys,
+            "visualizers": workspaces[currentWorkspace].loader.visualizers.keys,
+            "workspaceLength": range(len(workspaces))
         }
 
         if not isValid:
@@ -67,6 +93,6 @@ def get_configuration_params(request):
         visualizerPlugin = request.GET.get("visualizer", False)
         sourcePlugin = request.GET.get("source", False)
 
-        results = core.get_configuration_params(sourcePlugin)
+        results = workspaces[currentWorkspace].get_configuration_params(sourcePlugin)
 
         return JsonResponse({"configuration_params": results})

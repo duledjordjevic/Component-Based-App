@@ -37,3 +37,8 @@ class Core:
     def get_configuration_params(self,  data_source_key:str):
         data_source = self.loader.data_sources[data_source_key]
         return data_source.get_configuration_params()
+    
+    def load_workspace(self):
+        if self.graph:
+            retVal = self.loader.visualizers[self.current_visualizer].show_graph(self.graph)
+            return retVal
