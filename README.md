@@ -1,9 +1,3 @@
-## Authors
-
- - Dusan Djordjevic
- - Stefan Pejinovic 
- - Nikola Maric 
-
 ## Plugins
 
  - Block visualizer
@@ -37,3 +31,8 @@ root@username:~$/SOK ./.env/Scripts/activate
 ```console
 root@username:~$/SOK/graph_explorer py manage.py runserver
 ```
+## Authors
+
+ - Dusan Djordjevic [GitHub](https://github.com/duledjordjevic 'GitHub')
+ - Stefan Pejinovic [GitHub](https://github.com/pejinovics 'GitHub')
+ - Nikola Maric [GitHub](https://github.com/maricnikola 'GitHub')
